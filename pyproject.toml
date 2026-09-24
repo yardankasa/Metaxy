@@ -1,0 +1,41 @@
+[project]
+name = "metaxy"
+version = "0.1.0"
+description = "Metaxy | Proxy Health Pool"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = [
+    "aiohttp>=3.11.0",
+    "aiosqlite>=0.21.0",
+    "fastapi>=0.139.0",
+    "prometheus-client>=0.21.0",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.8.0",
+    "pyyaml>=6.0.2",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "structlog>=25.1.0",
+    "typer>=0.15.0",
+    "uvicorn>=0.34.0",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=9.1.1",
+    "ruff>=0.11.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]

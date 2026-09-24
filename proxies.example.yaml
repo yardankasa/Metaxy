@@ -1,0 +1,9 @@
+# Documentation addresses from RFC 5737. Replace them with proxies you operate.
+# This file is an example. Copy it to proxies.yaml, which is gitignored.
+proxies:
+  - host: 203.0.113.10
+    port: 8080
+    label: docs-a
+  - host: 198.51.100.20
+    port: 8080
+    label: docs-b

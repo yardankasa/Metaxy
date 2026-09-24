@@ -1,0 +1,49 @@
+check_url: http://www.gstatic.com/generate_204
+expected_status: 204
+inventory_path: proxies.yaml
+
+pool:
+  sweep_interval_seconds: 30
+  concurrency: 10
+  timeout_seconds: 8
+
+egress:
+  proxy_url: ""
+  interval_seconds: 20
+  timeout_seconds: 10
+
+feeder:
+  host: 127.0.0.1
+  port: 18080
+  connect_timeout_seconds: 5
+  max_failover: 8
+
+api:
+  host: 127.0.0.1
+  port: 8080
+
+scoring:
+  weight_success_1h: 0.35
+  weight_success_24h: 0.20
+  weight_success_7d: 0.15
+  weight_healthy: 0.10
+  weight_latency: 0.20
+  latency_ref_ms: 2000
+
+selection:
+  fail_threshold: 2
+  success_threshold: 1
+  score_switch_margin: 0.05
+  switch_hold_sweeps: 1
+
+store:
+  path: data/health.sqlite
+  cache_kb: 8192
+
+memory:
+  max_rss_mb: 384
+  hard_limit_mb: 0
+  max_connections: 64
+  max_probe_body_bytes: 8192
+  checks_retain_days: 8
+  check_interval_seconds: 15

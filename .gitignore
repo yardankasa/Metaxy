@@ -1,0 +1,15 @@
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.venv/
+.ruff_cache/
+
+data/*.sqlite
+data/*.sqlite-*
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+proxies.yaml
+.env

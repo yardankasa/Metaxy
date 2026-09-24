@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Metaxy | Proxy Health Pool</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --ink: #1c1915;
+      --card: #fffdf8;
+      --line: #e4ddd0;
+      --ok: #1f7a4d;
+      --bad: #a33b32;
+      --muted: #6d655c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #141311; --ink: #f3efe7; --card: #1e1c19; --line: #34302a; --ok: #7dcea0; --bad: #e59890; --muted: #b3aa9e; }
+    }
+    body { margin: 0; font: 16px/1.5 "Iowan Old Style", Palatino, Georgia, serif; background: var(--bg); color: var(--ink); }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+    h1 { font-size: 1.8rem; margin: 0 0 4px; }
+    p.lead { color: var(--muted); margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+    .label { color: var(--muted); font-size: 0.85rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .value { font-size: 1.6rem; margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+    .ok { color: var(--ok); }
+    .bad { color: var(--bad); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Metaxy | Proxy Health Pool</h1>
+    <p class="lead">Live view of the pool you configured locally. Endpoints are shown because this dashboard is for the operator of this process.</p>
+    <section class="grid">
+      <article class="card"><div class="label">Healthy</div><div class="value" id="healthy">–</div></article>
+      <article class="card"><div class="label">Preferred</div><div class="value" id="preferred">–</div></article>
+      <article class="card"><div class="label">Feeder</div><div class="value" id="feeder">–</div></article>
+      <article class="card"><div class="label">Egress</div><div class="value" id="egress">–</div></article>
+    </section>
+    <table>
+      <thead>
+        <tr><th>Member</th><th>Label</th><th>State</th><th>Score</th><th>1h</th><th>Latency</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+  <script>
+    async function refresh() {
+      const status = await fetch("/v1/status").then((r) => r.json());
+      const listing = await fetch("/v1/proxies").then((r) => r.json());
+      const pool = status.data.pool;
+      document.getElementById("healthy").textContent = pool.total ? pool.healthy + " / " + pool.total : "empty";
+      document.getElementById("preferred").textContent = pool.preferred ? pool.preferred.id : "none";
+      document.getElementById("feeder").textContent = status.data.feeder.host + ":" + status.data.feeder.port;
+      const egress = status.data.egress;
+      document.getElementById("egress").textContent = egress.enabled ? (egress.ok ? "up" : "down") : "off";
+      const body = document.getElementById("rows");
+      body.replaceChildren();
+      for (const proxy of listing.data.proxies) {
+        const tr = document.createElement("tr");
+        const cells = [
+          proxy.id,
+          proxy.label,
+          proxy.preferred ? "preferred" : (proxy.healthy ? "healthy" : "down"),
+          String(proxy.score),
+          Math.round(proxy.success_1h * 100) + "%",
+          proxy.latency_ms == null ? "–" : proxy.latency_ms + " ms",
+        ];
+        for (const text of cells) {
+          const td = document.createElement("td");
+          td.textContent = text;
+          tr.appendChild(td);
+        }
+        if (!proxy.healthy) tr.className = "bad";
+        else if (proxy.preferred) tr.className = "ok";
+        body.appendChild(tr);
+      }
+    }
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</body>
+</html>
